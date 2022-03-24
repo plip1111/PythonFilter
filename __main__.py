@@ -36,7 +36,7 @@ if __name__ == "__main__":
     img = cv2.imread("C:/ws_intern/src/PythonFilter/Sea-Turtle-PNG-Clipart.png")
 
     rows, cols ,_= img.shape
-    size = 5
+    size = 3
 
     threads = []
     print(f"size of picture : {rows} x {cols}")
