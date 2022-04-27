@@ -1,4 +1,3 @@
-from threading import Thread
 import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
@@ -18,12 +17,9 @@ canvas.grid(row=0, column=0, padx=5, pady=20)
 lmain = tk.Label(canvas)
 lmain.grid(row=0, column=0, padx=85, pady=119)
 cap = cv2.VideoCapture(0)
-doFilter = True
 
 def get_cam_frame(cam):
     ret, img = cam.read()
-    # smaller frame size - things run a lot smoother than a full screen img
-    # img = cv2.resize(img, (800, 470))
     return img
 
 def filterRed():
@@ -37,6 +33,22 @@ def filterGreen():
 def filterBlue():
     filter.doFilter = True
     filter.color = 3
+
+def filterParRed():
+    filter.doFilter = True
+    filter.color = 6
+
+def filterParGreen():
+    filter.doFilter = True
+    filter.color = 5
+
+def filterParBlue():
+    filter.doFilter = True
+    filter.color = 4
+
+def filterParRand():
+    filter.doFilter = True
+    filter.color = 7
 
 def filterFalse():
     filter.doFilter = False
@@ -57,17 +69,29 @@ sliderFrame = tk.Frame(root, width=500, height=50)
 sliderFrame.grid(row = 500, column=0, padx=10, pady=2)
 show_frame()
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterRed, text = "filter Red", bg = "red")
+filterbtn = tk.Button(root, width=30, height=30, command=filterRed, text = "Rot", bg = "red")
 filterbtn_window = canvas.create_window(100,150,width=100, height=30, anchor='nw', window=filterbtn)
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterGreen, text = "filter Green", bg = "green")
+filterbtn = tk.Button(root, width=30, height=30, command=filterGreen, text = "Grün", bg = "green")
 filterbtn_window = canvas.create_window(100,200,width=100, height=30, anchor='nw', window=filterbtn)
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterBlue, text = "filter Blue", bg = "blue")
+filterbtn = tk.Button(root, width=30, height=30, command=filterBlue, text = "Blau", bg = "blue")
 filterbtn_window = canvas.create_window(100,250,width=100, height=30, anchor='nw', window=filterbtn)
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterFalse, text = "filter off", bg = "grey")
+filterbtn = tk.Button(root, width=30, height=30, command=filterParRed, text = "Rot Parallel", bg = "red")
 filterbtn_window = canvas.create_window(100,300,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterParGreen, text = "Grün Parallel", bg = "green")
+filterbtn_window = canvas.create_window(100,350,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterParBlue, text = "Blau Parallel", bg = "blue")
+filterbtn_window = canvas.create_window(100,400,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterParRand, text = "Zufällige Farbe", bg = "pink")
+filterbtn_window = canvas.create_window(100,450,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterFalse, text = "Filter aus", bg = "grey")
+filterbtn_window = canvas.create_window(100,500,width=100, height=30, anchor='nw', window=filterbtn)
 
 quit_button = tk.Button(root, text = "X", command = root.quit, anchor = 'w',
                     width = 2, bg="red")

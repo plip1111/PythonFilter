@@ -1,10 +1,7 @@
 import imp
 import logging
 import threading
-import time
 import cv2 
-import numpy as np
-import matplotlib.pyplot as plt
 from random import randint
 
 def apply_filter(xstart,xend,ystart,yend,rgb,img):
