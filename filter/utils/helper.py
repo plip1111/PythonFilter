@@ -1,5 +1,13 @@
 
 import threading
+import sys
+import numpy
+import cv2
+
+
+def writeAt(x, y, content, colorBg='\33[40m', color='\33[37m'):
+    sys.stdout.write("%s%s\x1b7\x1b[%d;%df%s\x1b8" %
+                     (colorBg, color, y, x, content))
 
 
 def setupAsciiMapping():
@@ -15,27 +23,57 @@ def setupAsciiMapping():
 
 _asciiMap = {}
 
-
-def _multi_thread_ascii(start, end, threadIndex, cols, frame, convertedImg):
-    for x in range(start, end):
-        if x % 2 == 0:
-            tmp = []
-            for y in range(cols):
-                l = frame[x, y]
-                tmp.append(_asciiMap[l])
-            convertedImg[threadIndex].append(tmp)
+# pixel = np.mean(frame[
+#       2 * int(y * poolingBlockHeight):min(int((y + 1) * poolingBlockHeight), frameHeight),
+#       1 * int(x * poolingBlockWidth ):min(int((x + 1) * poolingBlockWidth ), frameWidth)])
 
 
-def convertToAscii(frame, threadCount, rowsPerT, cols, oddRows):
-    #print("frame", frame[0:3, 4:5])
+def convertToAsciiSingle(frame, rows, cols, poolingBlockWidth, poolingBlockHeight, frameWidth, frameHeight, yAxisBalance):
+    convertedImg = []
+
+    for y in range(int(rows/yAxisBalance)):
+       # if y % 2 == 0:
+        tmp = []
+        for x in range(cols):
+            pixel = numpy.mean(frame[
+                int(yAxisBalance*y * poolingBlockHeight):min(int(yAxisBalance*(y + 1) * poolingBlockHeight), frameHeight),
+                int(x * poolingBlockWidth):min(int((x + 1) * poolingBlockWidth), frameWidth)
+
+            ])
+            tmp.append(_asciiMap[int(pixel)])
+        convertedImg.append(tmp)
+
+    ascii = ''
+
+    for lines in convertedImg:
+        ascii += ' '.join(lines)
+        ascii += '\n'
+    return ascii
+
+
+def _convertFrameChunksToAscii(start, end, threadIndex, cols, frame, convertedImg, poolingBlockWidth, poolingBlockHeight, frameWidth, frameHeight, yAxisBalance):
+    for y in range(int(start/yAxisBalance), int(end/yAxisBalance)):
+       # if y % 2 == 0:
+        tmp = []
+        for x in range(cols):
+            pixel = numpy.mean(frame[
+                int(yAxisBalance*y * poolingBlockHeight):min(int(yAxisBalance*(y + 1) * poolingBlockHeight), frameHeight),
+                int(x * poolingBlockWidth):min(int((x + 1) * poolingBlockWidth), frameWidth)
+
+            ])
+            tmp.append(_asciiMap[int(pixel)])
+        convertedImg[threadIndex].append(tmp)
+
+
+def convertToAsciiBlockMulti(frame, rows, cols, poolingBlockWidth, poolingBlockHeight, frameWidth, frameHeight, threadCount, rowsPerT, yAxisBalance):
     convertedImg = []
     threadArr = []
     for t in range(0, threadCount):
         start = t*rowsPerT
         end = (t+1)*rowsPerT if t != (threadCount -
-                                      1) else (t+1) * rowsPerT + oddRows
+                                      1) else (t+1) * rowsPerT
         threadArr.append(threading.Thread(
-            target=_multi_thread_ascii, args=(start, end, t, cols, frame, convertedImg,)))
+            target=_convertFrameChunksToAscii, args=(start, end, t, cols, frame, convertedImg, poolingBlockWidth, poolingBlockHeight, frameWidth, frameHeight, yAxisBalance)))
         convertedImg.append([])
 
     for t in threadArr:
@@ -44,10 +82,24 @@ def convertToAscii(frame, threadCount, rowsPerT, cols, oddRows):
     for t in threadArr:
         t.join()
 
-    ascii = ''
+    ascii = []
 
     for threadLines in convertedImg:
+        tmp = ''
         for lines in threadLines:
-            ascii += ' '.join(lines)
-            ascii += '\n'
+            tmp += ' '.join(lines)
+            tmp += '\n'
+        ascii.append(tmp)
     return ascii
+
+
+def standardVid():
+    cap = cv2.VideoCapture(0)
+    while(True):
+        ret, frame = cap.read()
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
