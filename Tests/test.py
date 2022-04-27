@@ -2,13 +2,12 @@ from threading import Thread
 import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
-from matplotlib.pyplot import show
 import Filter
 
 
 # Initialize Window
 
-filter = Filter.Filter(False)
+filter = Filter.Filter(False,0)
 root = tk.Tk()
 root.wm_title("Filter App")
 root.config(background="#000000")
@@ -27,8 +26,17 @@ def get_cam_frame(cam):
     # img = cv2.resize(img, (800, 470))
     return img
 
-def filterTrue():
+def filterRed():
     filter.doFilter = True
+    filter.color = 1
+
+def filterGreen():
+    filter.doFilter = True
+    filter.color = 2
+
+def filterBlue():
+    filter.doFilter = True
+    filter.color = 3
 
 def filterFalse():
     filter.doFilter = False
@@ -37,7 +45,7 @@ def show_frame():
     _, frame = cap.read()
     frame = cv2.flip(frame, 1)
     if(filter.doFilter):  
-        frame = Filter.filter(frame)
+        frame = Filter.filter(frame,filter.color)
     cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
     img = Image.fromarray(cv2image)
     imgtk = ImageTk.PhotoImage(image=img)
@@ -49,11 +57,17 @@ sliderFrame = tk.Frame(root, width=500, height=50)
 sliderFrame.grid(row = 500, column=0, padx=10, pady=2)
 show_frame()
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterTrue, text = "filter on", bg = "green")
+filterbtn = tk.Button(root, width=30, height=30, command=filterRed, text = "filter Red", bg = "red")
 filterbtn_window = canvas.create_window(100,150,width=100, height=30, anchor='nw', window=filterbtn)
 
-filterbtn = tk.Button(root, width=30, height=30, command=filterFalse, text = "filter off", bg = "red")
+filterbtn = tk.Button(root, width=30, height=30, command=filterGreen, text = "filter Green", bg = "green")
 filterbtn_window = canvas.create_window(100,200,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterBlue, text = "filter Blue", bg = "blue")
+filterbtn_window = canvas.create_window(100,250,width=100, height=30, anchor='nw', window=filterbtn)
+
+filterbtn = tk.Button(root, width=30, height=30, command=filterFalse, text = "filter off", bg = "grey")
+filterbtn_window = canvas.create_window(100,300,width=100, height=30, anchor='nw', window=filterbtn)
 
 quit_button = tk.Button(root, text = "X", command = root.quit, anchor = 'w',
                     width = 2, bg="red")
