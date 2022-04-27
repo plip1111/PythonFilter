@@ -1,0 +1,6 @@
+Sie benötigen python 3 mit pip version 20 oder neuer
+
+zusätzlich folgende Pakete:
+pip install opencv-python
+pip install pynput
+pip install pillow
