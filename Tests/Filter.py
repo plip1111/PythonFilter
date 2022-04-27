@@ -36,7 +36,6 @@ def filter_parallel(img,color):
     size = 3
     threads = []
     initialcolor = color
-    print(f"size of picture : {rows} x {cols}")
     for x in range(size):
         for y in range(size):    
             if(initialcolor == 4):
@@ -45,7 +44,6 @@ def filter_parallel(img,color):
             xend = int(rows/size*(x+1))
             ystart = int(cols/size*y)
             yend = int(cols/size*(y+1))
-            print(f"start = {xstart}, end = {xend}, ystart = {ystart}, yend = {yend}")
             threads.append(threading.Thread(target=apply_filter, args=(xstart,xend,ystart,yend,color,img)))
 
     for thread in threads:
